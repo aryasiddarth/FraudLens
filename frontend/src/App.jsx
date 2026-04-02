@@ -28,14 +28,14 @@ function Hero({ onAnalyze }) {
   return (
     <section className="hero">
       <div className="hero-eyebrow">
-        <span>🛡️</span> Real-Time Credit Card Fraud Detection
+        <span>🛡️</span> Real-Time Loan Default Risk Detection
       </div>
       <h1 className="hero-title">
         Detect fraud with{' '}
         <span className="gradient-text">machine precision</span>
       </h1>
       <p className="hero-subtitle">
-        FraudLens uses ensemble machine learning trained on 284,807 real transactions
+        FraudLens uses ensemble machine learning trained on Home Credit-style application records
         with SMOTE balancing, SHAP explainability, and optimized decision thresholds.
       </p>
       <div className="hero-cta">
@@ -134,7 +134,7 @@ export default function App() {
                       No analysis yet
                     </div>
                     <div style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-                      Fill in the transaction details and click Analyze, or use a sample transaction.
+                      Fill in the applicant details and click Analyze, or use a sample profile.
                     </div>
                   </div>
                 )}
@@ -168,8 +168,8 @@ export default function App() {
         fontSize: '0.8rem', color: 'var(--text-muted)',
         borderTop: '1px solid var(--border)', marginTop: 40
       }}>
-        FraudLens — ML-Powered Fraud Detection &nbsp;·&nbsp;
-        Trained on <strong style={{ color: 'var(--blue-400)' }}>284,807</strong> real transactions &nbsp;·&nbsp;
+        FraudLens — ML-Powered Default Risk Detection &nbsp;·&nbsp;
+        Trained on Home Credit-style application records &nbsp;·&nbsp;
         <a href="http://localhost:8000/docs" target="_blank" rel="noreferrer"
           style={{ color: 'var(--blue-400)', textDecoration: 'none' }}>
           API Docs →

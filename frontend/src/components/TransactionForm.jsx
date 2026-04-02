@@ -1,33 +1,96 @@
 import { useState } from 'react';
 import './transaction-form.css';
 
-const V_FEATURES = Array.from({ length: 28 }, (_, i) => `V${i + 1}`);
-const ALL_FEATURES = ['Time', ...V_FEATURES, 'Amount'];
+const SELECT_FIELDS = [
+  {
+    key: 'NAME_CONTRACT_TYPE',
+    label: 'Contract Type',
+    options: ['Cash loans', 'Revolving loans'],
+  },
+  {
+    key: 'CODE_GENDER',
+    label: 'Gender',
+    options: ['F', 'M'],
+  },
+  {
+    key: 'FLAG_OWN_CAR',
+    label: 'Owns Car',
+    options: ['Y', 'N'],
+  },
+  {
+    key: 'FLAG_OWN_REALTY',
+    label: 'Owns Realty',
+    options: ['Y', 'N'],
+  },
+  {
+    key: 'NAME_INCOME_TYPE',
+    label: 'Income Type',
+    options: ['Working', 'Commercial associate', 'Pensioner', 'State servant', 'Unemployed', 'Student'],
+  },
+  {
+    key: 'NAME_EDUCATION_TYPE',
+    label: 'Education',
+    options: [
+      'Secondary / secondary special',
+      'Higher education',
+      'Incomplete higher',
+      'Lower secondary',
+      'Academic degree',
+    ],
+  },
+];
+
+const NUMBER_FIELDS = [
+  { key: 'CNT_CHILDREN', label: 'Children Count', min: 0, placeholder: '0' },
+  { key: 'AMT_INCOME_TOTAL', label: 'Total Income', min: 0, placeholder: '180000' },
+  { key: 'AMT_CREDIT', label: 'Credit Amount', min: 0, placeholder: '450000' },
+  { key: 'AMT_ANNUITY', label: 'Annuity Amount', min: 0, placeholder: '25000' },
+  { key: 'AMT_GOODS_PRICE', label: 'Goods Price', min: 0, placeholder: '405000' },
+  { key: 'DAYS_BIRTH', label: 'Days Birth (negative)', placeholder: '-14000' },
+  { key: 'DAYS_EMPLOYED', label: 'Days Employed (negative)', placeholder: '-2000' },
+  { key: 'EXT_SOURCE_1', label: 'External Score 1', min: 0, max: 1, step: 'any', placeholder: '0.45' },
+  { key: 'EXT_SOURCE_2', label: 'External Score 2', min: 0, max: 1, step: 'any', placeholder: '0.62' },
+  { key: 'EXT_SOURCE_3', label: 'External Score 3', min: 0, max: 1, step: 'any', placeholder: '0.51' },
+];
+
+const ALL_FEATURES = [...SELECT_FIELDS.map(f => f.key), ...NUMBER_FIELDS.map(f => f.key)];
 
 const FRAUD_EXAMPLE = {
-  Time: 406, V1: -2.3122265423263, V2: 1.95199201064158, V3: -1.60985073229769,
-  V4: 3.9979055875468, V5: -0.522187864667764, V6: -1.42654531920595,
-  V7: -2.53738730624579, V8: 1.39165724829804, V9: -2.77008927719433,
-  V10: -2.77227214465915, V11: 3.20203320709635, V12: -2.89990738849473,
-  V13: -0.595221881324605, V14: -4.28925378244217, V15: 0.389724120274487,
-  V16: -1.14074717980657, V17: -2.83005567450437, V18: -0.0168224681808257,
-  V19: 0.416955705037907, V20: 0.126910559061474, V21: 0.517232370861711,
-  V22: -0.0350493686052974, V23: -0.465211076986171, V24: 0.320198197514045,
-  V25: 0.0445191674731724, V26: 0.177839798284401, V27: 0.261145002567677,
-  V28: -0.143275874698919, Amount: 239.93
+  NAME_CONTRACT_TYPE: 'Cash loans',
+  CODE_GENDER: 'M',
+  FLAG_OWN_CAR: 'N',
+  FLAG_OWN_REALTY: 'N',
+  NAME_INCOME_TYPE: 'Unemployed',
+  NAME_EDUCATION_TYPE: 'Lower secondary',
+  CNT_CHILDREN: 3,
+  AMT_INCOME_TOTAL: 90000,
+  AMT_CREDIT: 900000,
+  AMT_ANNUITY: 52000,
+  AMT_GOODS_PRICE: 900000,
+  DAYS_BIRTH: -9000,
+  DAYS_EMPLOYED: -100,
+  EXT_SOURCE_1: 0.08,
+  EXT_SOURCE_2: 0.12,
+  EXT_SOURCE_3: 0.11,
 };
 
 const LEGIT_EXAMPLE = {
-  Time: 0, V1: -1.3598071336738, V2: -0.0727811733098497, V3: 2.53634673796914,
-  V4: 1.37815522427443, V5: -0.338320769942518, V6: 0.462387777762292,
-  V7: 0.239598554061257, V8: 0.0986979012610507, V9: 0.363786969611213,
-  V10: 0.0907941719789513, V11: -0.551599533260813, V12: -0.617800855762348,
-  V13: -0.991389847235408, V14: -0.311169353699879, V15: 1.46817697209427,
-  V16: -0.470400525259478, V17: 0.207971241929242, V18: 0.0257905801985591,
-  V19: 0.403992960255733, V20: 0.251412098239705, V21: -0.018306777944153,
-  V22: 0.277837575558899, V23: -0.110473910188767, V24: 0.0669280749146731,
-  V25: 0.128539358273528, V26: -0.189114843888824, V27: 0.133558376740387,
-  V28: -0.0210530534538215, Amount: 149.62
+  NAME_CONTRACT_TYPE: 'Cash loans',
+  CODE_GENDER: 'F',
+  FLAG_OWN_CAR: 'N',
+  FLAG_OWN_REALTY: 'Y',
+  NAME_INCOME_TYPE: 'Working',
+  NAME_EDUCATION_TYPE: 'Higher education',
+  CNT_CHILDREN: 0,
+  AMT_INCOME_TOTAL: 202500,
+  AMT_CREDIT: 406597.5,
+  AMT_ANNUITY: 24700.5,
+  AMT_GOODS_PRICE: 351000,
+  DAYS_BIRTH: -9461,
+  DAYS_EMPLOYED: -637,
+  EXT_SOURCE_1: 0.41,
+  EXT_SOURCE_2: 0.62,
+  EXT_SOURCE_3: 0.51,
 };
 
 const initialValues = () => Object.fromEntries(ALL_FEATURES.map(f => [f, '']));
@@ -48,10 +111,16 @@ export default function TransactionForm({ onSubmit, loading }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     const parsed = {};
-    for (const [k, v] of Object.entries(values)) {
-      const num = parseFloat(v);
-      if (isNaN(num)) { alert(`"${k}" must be a valid number.`); return; }
-      parsed[k] = num;
+    for (const field of SELECT_FIELDS) {
+      const val = values[field.key];
+      if (!val) { alert(`"${field.label}" is required.`); return; }
+      parsed[field.key] = val;
+    }
+    for (const field of NUMBER_FIELDS) {
+      const val = values[field.key];
+      const num = parseFloat(val);
+      if (isNaN(num)) { alert(`"${field.label}" must be a valid number.`); return; }
+      parsed[field.key] = num;
     }
     onSubmit(parsed);
   };
@@ -77,47 +146,48 @@ export default function TransactionForm({ onSubmit, loading }) {
       </div>
 
       <form onSubmit={handleSubmit}>
-        {/* Special Fields */}
-        <div className="tx-special-row">
-          <div className="form-group">
-            <label className="form-label">Time (seconds)</label>
-            <input
-              className={`form-input ${focusedField === 'Time' ? 'focused' : ''}`}
-              type="number" step="any" placeholder="0.0"
-              value={values.Time}
-              onChange={e => handleChange('Time', e.target.value)}
-              onFocus={() => setFocusedField('Time')}
-              onBlur={() => setFocusedField(null)}
-            />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Amount (USD)</label>
-            <input
-              className={`form-input ${focusedField === 'Amount' ? 'focused' : ''}`}
-              type="number" step="any" min="0" placeholder="0.00"
-              value={values.Amount}
-              onChange={e => handleChange('Amount', e.target.value)}
-              onFocus={() => setFocusedField('Amount')}
-              onBlur={() => setFocusedField(null)}
-            />
-          </div>
-        </div>
-
-        {/* PCA Features Grid */}
         <div className="tx-pca-label">
-          <span className="form-label">PCA Features (V1 – V28)</span>
-          <span className="tx-pca-note">Pre-transformed; enter raw values from dataset</span>
+          <span className="form-label">Applicant Profile</span>
+          <span className="tx-pca-note">Home Credit-style inputs for loan default risk scoring</span>
         </div>
         <div className="tx-grid">
-          {V_FEATURES.map(feat => (
-            <div key={feat} className="form-group">
-              <label className="form-label tx-v-label">{feat}</label>
+          {SELECT_FIELDS.map(field => (
+            <div key={field.key} className="form-group">
+              <label className="form-label tx-v-label">{field.label}</label>
+              <select
+                className={`form-input tx-v-input ${focusedField === field.key ? 'focused' : ''}`}
+                value={values[field.key]}
+                onChange={e => handleChange(field.key, e.target.value)}
+                onFocus={() => setFocusedField(field.key)}
+                onBlur={() => setFocusedField(null)}
+              >
+                <option value="">Select...</option>
+                {field.options.map(opt => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+          ))}
+        </div>
+
+        <div className="tx-pca-label">
+          <span className="form-label">Numeric Indicators</span>
+          <span className="tx-pca-note">Enter values from the applicant record</span>
+        </div>
+        <div className="tx-grid">
+          {NUMBER_FIELDS.map(field => (
+            <div key={field.key} className="form-group">
+              <label className="form-label tx-v-label">{field.label}</label>
               <input
-                className={`form-input tx-v-input ${focusedField === feat ? 'focused' : ''}`}
-                type="number" step="any" placeholder="0.0"
-                value={values[feat]}
-                onChange={e => handleChange(feat, e.target.value)}
-                onFocus={() => setFocusedField(feat)}
+                className={`form-input tx-v-input ${focusedField === field.key ? 'focused' : ''}`}
+                type="number"
+                step={field.step || 'any'}
+                min={field.min}
+                max={field.max}
+                placeholder={field.placeholder}
+                value={values[field.key]}
+                onChange={e => handleChange(field.key, e.target.value)}
+                onFocus={() => setFocusedField(field.key)}
                 onBlur={() => setFocusedField(null)}
               />
             </div>

@@ -1,6 +1,6 @@
 """
 FraudLens ML Training Pipeline
-- Loads creditcard.csv
+- Loads a configurable dataset (default: application_data.csv if present)
 - Preprocesses data (scale Amount & Time)
 - Applies SMOTE only on training set
 - Trains Logistic Regression, Random Forest, XGBoost
@@ -38,9 +38,29 @@ from xgboost import XGBClassifier
 
 warnings.filterwarnings("ignore")
 
+APP_FEATURES = [
+    "NAME_CONTRACT_TYPE",
+    "CODE_GENDER",
+    "FLAG_OWN_CAR",
+    "FLAG_OWN_REALTY",
+    "NAME_INCOME_TYPE",
+    "NAME_EDUCATION_TYPE",
+    "CNT_CHILDREN",
+    "AMT_INCOME_TOTAL",
+    "AMT_CREDIT",
+    "AMT_ANNUITY",
+    "AMT_GOODS_PRICE",
+    "DAYS_BIRTH",
+    "DAYS_EMPLOYED",
+    "EXT_SOURCE_1",
+    "EXT_SOURCE_2",
+    "EXT_SOURCE_3",
+]
+
 # ─── Paths ─────────────────────────────────────────────────────────────────────
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_PATH = os.path.join(ROOT, "creditcard.csv")
+DEFAULT_DATASET = "application_data.csv" if os.path.exists(os.path.join(ROOT, "application_data.csv")) else "creditcard.csv"
+DATA_PATH = os.getenv("FRAUDLENS_DATASET_PATH", os.path.join(ROOT, DEFAULT_DATASET))
 ARTIFACTS_DIR = os.path.join(ROOT, "artifacts")
 PLOTS_DIR = os.path.join(ARTIFACTS_DIR, "plots")
 os.makedirs(ARTIFACTS_DIR, exist_ok=True)
@@ -67,20 +87,53 @@ PALETTE = ["#3b82f6", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6"]
 def load_and_preprocess():
     print("📦  Loading dataset...")
     df = pd.read_csv(DATA_PATH)
-    print(f"    Shape: {df.shape}  |  Fraud rate: {df['Class'].mean()*100:.3f}%")
+    target_col = "Class" if "Class" in df.columns else ("TARGET" if "TARGET" in df.columns else None)
+    if target_col is None:
+        raise ValueError("Dataset must include either 'Class' or 'TARGET' as the label column.")
 
-    # Drop nulls
-    df.dropna(inplace=True)
+    print(f"    Dataset: {os.path.basename(DATA_PATH)}")
+    print(f"    Shape: {df.shape}  |  Positive rate: {df[target_col].mean()*100:.3f}%")
 
-    X = df.drop("Class", axis=1)
-    y = df["Class"]
+    missing_required = [c for c in APP_FEATURES if c not in df.columns]
+    if missing_required:
+        raise ValueError(f"Dataset missing required columns: {missing_required}")
 
-    # Scale Amount & Time (V1–V28 are already PCA-transformed)
+    y = df[target_col]
+    X = df[APP_FEATURES].copy()
+
+    numeric_cols = [
+        "CNT_CHILDREN", "AMT_INCOME_TOTAL", "AMT_CREDIT",
+        "AMT_ANNUITY", "AMT_GOODS_PRICE", "DAYS_BIRTH",
+        "DAYS_EMPLOYED", "EXT_SOURCE_1", "EXT_SOURCE_2", "EXT_SOURCE_3",
+    ]
+    categorical_cols = [c for c in APP_FEATURES if c not in numeric_cols]
+    numeric_medians = {}
+
+    if numeric_cols:
+        for col in numeric_cols:
+            median = float(X[col].median())
+            numeric_medians[col] = median
+            X[col] = X[col].fillna(median)
+    if categorical_cols:
+        X[categorical_cols] = X[categorical_cols].fillna("MISSING").astype(str)
+        X = pd.get_dummies(X, columns=categorical_cols, drop_first=True)
+
     scaler = StandardScaler()
-    X = X.copy()
-    X[["Amount", "Time"]] = scaler.fit_transform(X[["Amount", "Time"]])
+    scaled_cols = [c for c in numeric_cols if c in X.columns]
+    if scaled_cols:
+        X[scaled_cols] = scaler.fit_transform(X[scaled_cols])
 
-    return X, y, scaler
+    metadata = {
+        "dataset_path": DATA_PATH,
+        "target_column": target_col,
+        "scaled_columns": scaled_cols,
+        "feature_names": list(X.columns),
+        "raw_features": APP_FEATURES,
+        "categorical_raw_features": categorical_cols,
+        "numeric_raw_features": numeric_cols,
+        "numeric_medians": numeric_medians,
+    }
+    return X, y, scaler, metadata
 
 
 # ─── 2. Split ──────────────────────────────────────────────────────────────────
@@ -358,7 +411,7 @@ def main():
     print("="*60 + "\n")
 
     # Load & preprocess
-    X, y, scaler = load_and_preprocess()
+    X, y, scaler, metadata = load_and_preprocess()
     feature_names = list(X.columns)
 
     # Split
@@ -433,6 +486,9 @@ def main():
     }
     with open(os.path.join(ARTIFACTS_DIR, "threshold.json"), "w") as f:
         json.dump(threshold_info, f, indent=2)
+
+    with open(os.path.join(ARTIFACTS_DIR, "metadata.json"), "w") as f:
+        json.dump(metadata, f, indent=2)
 
     print("\n" + "="*60)
     print("  ✅  Training complete! Artifacts saved to /artifacts/")
