@@ -1,0 +1,7 @@
+creditcard.csv
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+node_modules/
+artifacts/

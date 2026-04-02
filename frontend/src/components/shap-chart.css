@@ -1,0 +1,41 @@
+/* ShapChart styles */
+.shap-wrapper { overflow: hidden; }
+
+.shap-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 24px 28px 16px; border-bottom: 1px solid var(--border);
+  flex-wrap: wrap; gap: 12px;
+}
+
+.shap-title { font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+.shap-subtitle { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+
+.shap-legend { display: flex; gap: 16px; align-items: center; }
+.shap-legend-item {
+  font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 99px;
+}
+.shap-legend-item.fraud { color: #ef4444; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); }
+.shap-legend-item.legit { color: #10b981; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); }
+
+.shap-chart-area { padding: 16px 20px; }
+
+.shap-tooltip {
+  background: rgba(13,21,38,0.95);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  backdrop-filter: blur(12px);
+}
+.shap-tooltip-feature { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); }
+.shap-tooltip-val { font-size: 1rem; font-weight: 700; margin-top: 4px; }
+.shap-tooltip-dir { font-size: 0.75rem; margin-top: 2px; opacity: 0.8; }
+
+.shap-footer {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 24px 16px;
+  font-size: 0.78rem; color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  background: rgba(0,0,0,0.15);
+  line-height: 1.5;
+}

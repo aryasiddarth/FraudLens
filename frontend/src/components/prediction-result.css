@@ -1,0 +1,59 @@
+/* PredictionResult styles */
+.result-card {
+  border-color: var(--result-color, var(--border)) !important;
+  box-shadow: var(--shadow-card), 0 0 40px var(--result-glow, transparent) !important;
+  overflow: hidden;
+}
+
+.result-banner {
+  display: flex; align-items: center; gap: 16px; padding: 24px 28px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, var(--result-glow, transparent), transparent);
+}
+
+.result-icon {
+  width: 56px; height: 56px; border-radius: 16px;
+  background: var(--result-glow);
+  border: 2px solid var(--result-color, var(--border));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem; flex-shrink: 0;
+  color: var(--result-color);
+}
+
+.result-verdict {
+  font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em;
+  color: var(--result-color);
+}
+
+.result-subtext { font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px; }
+
+.result-pulse { margin-left: auto; }
+
+.result-gauge-row {
+  display: flex; align-items: center; gap: 24px; padding: 24px 28px;
+  flex-wrap: wrap;
+}
+
+.result-gauge { position: relative; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+
+.result-pct {
+  position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+  font-size: 1.8rem; font-weight: 800; letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.result-pct-label {
+  font-size: 0.72rem; color: var(--text-muted); margin-top: -8px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+
+.result-details { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 16px; }
+
+.result-detail-item { display: flex; flex-direction: column; gap: 6px; }
+.result-detail-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
+
+/* States */
+.result-legit   { --result-color: #10b981; --result-glow: rgba(16,185,129,0.15); }
+.result-medium  { --result-color: #f59e0b; --result-glow: rgba(245,158,11,0.12); }
+.result-fraud   { --result-color: #ef4444; --result-glow: rgba(239,68,68,0.15); }
+.result-critical{ --result-color: #dc2626; --result-glow: rgba(220,38,38,0.2); }
